@@ -4835,11 +4835,9 @@ checksum = "241eaef5fd12c88705a01fc1066c48c4b36e0dd4377dcdc7ec3942cea7a69956"
 [[package]]
 name = "litesvm"
 version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a22c52e9daf4680aee15e84c877808d94bbd4f3f66cdd32e0ba059d930d581e4"
+source = "git+https://github.com/procdump/litesvm.git?branch=v0.8.1_feat_dbg_prs#76fc84178d781fe76efa48709f7fbbe7b26c302e"
 dependencies = [
  "agave-feature-set",
- "agave-precompiles",
  "agave-reserved-account-keys",
  "agave-syscalls",
  "ansi_term",
