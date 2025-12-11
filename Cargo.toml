@@ -82,8 +82,11 @@ juniper_codegen = { version = "0.16.0", default-features = false }
 juniper_graphql_ws = { version = "0.4.0", default-features = false }
 lazy_static = "1.5.0"
 libloading = "0.7.4"
-litesvm = { version = "0.8.1", features = ["nodejs-internal"] }
-litesvm-token = "0.8.1"
+
+# Debugger related dependencies
+litesvm = { git = "https://github.com/procdump/litesvm.git", branch = "v0.8.1_feat_dbg_prs", features = [ "nodejs-internal", "sbpf-debugger" ]}
+litesvm-token = { git = "https://github.com/procdump/litesvm.git", branch = "v0.8.1_feat_dbg_prs"}
+
 log = "0.4.27"
 mime_guess = { version = "2.0.4", default-features = false }
 mustache = "0.9.0"
@@ -121,7 +124,7 @@ solana-inflation = { version = "3.0.0", default-features = false }
 solana-instruction = { version = "3.0.0", default-features = false }
 solana-keypair = { version = "3.0.0", default-features = false }
 solana-loader-v3-interface = { version = "6.1.0", default-features = false }
-solana-message = { version = "3.0.0", default-features = false }
+solana-message = { version = "3.0.0", default-features  = false }
 solana-packet = { version = "3.0.0", default-features = false }
 solana-program-option = { version = "3.0.0", default-features = false }
 solana-program-pack = { version = "3.0.0", default-features = false }
@@ -173,7 +176,6 @@ txtx-core = { version = "0.4.13" }
 txtx-gql = { version = "0.3.7" }
 txtx-supervisor-ui = { version = "0.2.9", default-features = false }
 
-# [patch.crates-io]
 ## Local
 # txtx-addon-kit = { path = "../txtx/crates/txtx-addon-kit" }
 # txtx-core = { path = "../txtx/crates/txtx-core" }
@@ -191,3 +193,19 @@ txtx-supervisor-ui = { version = "0.2.9", default-features = false }
 # txtx-gql = { git = "https://github.com/txtx/txtx.git", branch = "main" }
 # txtx-supervisor-ui = { git = "https://github.com/txtx/txtx.git", branch = "main" }
 # txtx-cloud = { git = "https://github.com/txtx/txtx.git", branch = "main" }
+
+[patch.crates-io]
+# Boris Forks
+litesvm-token = { git = "https://github.com/procdump/litesvm.git", branch = "v0.8.1_feat_dbg_prs"}
+litesvm = { git = "https://github.com/procdump/litesvm.git", branch = "v0.8.1_feat_dbg_prs"}
+solana-sbpf = { git = "https://github.com/procdump/sbpf.git", branch = "v0.12.2_feat_dbg_prs" }
+# My Forks, They are fetched from boris v3.0.7 branch i just refactored all dependencies to use 3.0.6 version instead
+solana-bpf-loader-program = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-program-runtime = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-transaction-context = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-svm-measure =  { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-svm-log-collector = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-svm-feature-set = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-svm-transaction = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-svm-callback = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
+solana-svm-timings = { git = "https://github.com/ERoydev/agave.git", branch = "v3.0.6-refactored-prs" }
