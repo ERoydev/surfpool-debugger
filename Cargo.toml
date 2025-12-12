@@ -23,6 +23,9 @@ exclude = ["examples/*"]
 default-members = ["crates/cli"]
 resolver = "2"
 
+[profile.dev]
+debug = true
+
 [workspace.dependencies]
 actix-cors = "0.7.0"
 actix-web = { version = "4", default-features = false }

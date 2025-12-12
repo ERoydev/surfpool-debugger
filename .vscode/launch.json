@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug surfpool_core binary (test build)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/debug/deps/surfpool_core-233e4c2f48bd8d26",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false,
+            "preRunCommands": [
+                "breakpoint set --file ${workspaceFolder}/crates/core/src/surfnet/svm.rs --line 500"
+            ]
+        }
+    ]
+}

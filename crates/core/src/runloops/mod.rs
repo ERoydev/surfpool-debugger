@@ -98,6 +98,7 @@ pub async fn start_local_surfnet_runloop(
         ),
     };
 
+    // TODO: Initialization for SurfnetSVM, Litesvm Wrapper
     svm_locker
         .initialize(
             simnet.slot_time,
@@ -729,6 +730,8 @@ fn start_geyser_runloop(
     Ok(handle)
 }
 
+// TODO: This is the entrypoint where my Surfpool is entering initially to connect
+// Here is the SurfnetSVM which is a wrapper above LiteSVM and adds additional fields 
 async fn start_rpc_servers_runloop(
     config: &SurfpoolConfig,
     simnet_commands_tx: &Sender<SimnetCommand>,

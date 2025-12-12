@@ -13,3 +13,9 @@ cargo surfpool-install
 ```
 
 It wil install the surfpool in `~/.cargo/bin/surfpool-fork` and u can use with `surfpool-fork` without overriding your original surfpool which should be inside `/opt/homebrew/bin/surfpool`
+
+
+
+## Debugging
+
+Use the `launch.json` to debug the fork using the executable created from compiling the tests without running
