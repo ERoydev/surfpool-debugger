@@ -1,10 +1,11 @@
 use std::{
     env,
     error::Error,
-    io,
+    io::{self, Read},
     time::{Duration, Instant},
 };
-
+use std::os::fd::FromRawFd;
+use crate::cli::Context;
 use chrono::{DateTime, Datelike, Local};
 use crossbeam::channel::{Select, Sender, unbounded};
 use crossterm::{
@@ -248,12 +249,19 @@ impl ColorTheme {
     }
 }
 
-enum EventType {
+#[derive(Debug)]
+pub enum EventType {
     Debug,
     Info,
     Success,
     Failure,
     Warning,
+}
+
+#[derive(Debug)]
+pub struct IORecord {
+    pub message: String,
+    pub event_type: EventType,
 }
 
 struct App {
@@ -403,6 +411,7 @@ pub fn start_app(
     deploy_progress_rx: Vec<Receiver<BlockEvent>>,
     displayed_url: DisplayedUrl,
     breaker: Option<Keypair>,
+    ctx: Context
 ) -> Result<(), Box<dyn Error>> {
     // setup terminal
     enable_raw_mode()?;
@@ -420,7 +429,7 @@ pub fn start_app(
         displayed_url,
         breaker,
     );
-    let res = run_app(&mut terminal, app);
+    let res = run_app(&mut terminal, app, ctx);
 
     // restore terminal
     disable_raw_mode()?;
@@ -434,7 +443,7 @@ pub fn start_app(
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, ctx: Context) -> io::Result<()> {
     let (tx, rx) = unbounded();
     let rpc_api_url = match app.displayed_url {
         DisplayedUrl::Datasource(ref config) => config.rpc_url.clone(),
@@ -451,6 +460,37 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
         }
     });
 
+    // Read stderr in another thread - live pipe
+    let pipe_rx = if let Some(read_pipe) = ctx.pipe_read_stderr {
+        let read_pipe_clone = read_pipe.clone();
+        let (pipe_tx, pipe_rx) = std::sync::mpsc::channel::<IORecord>();
+
+        std::thread::spawn(move || {
+            let mut reader = unsafe { std::fs::File::from_raw_fd(read_pipe_clone) };
+            let mut buf = [0u8; 4096];
+    
+            loop {
+                let n = reader.read(&mut buf).unwrap();
+                if n == 0 {
+                    break;
+                }
+    
+                let text = String::from_utf8_lossy(&buf[..n]);
+                let record_instance = IORecord {
+                    message: text.to_string(),
+                    event_type: EventType::Warning,   
+                };
+                
+                // Send the stderr as Event that needs to be added in the App State
+                let _ = pipe_tx.send(record_instance);
+            }
+        });
+
+        Some(pipe_rx)
+    } else {
+        None
+    };
+
     let mut deployment_completed = false;
     loop {
         let mut selector = Select::new();
@@ -462,6 +502,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
             if !deployment_completed {
                 for rx in app.deploy_progress_rx.iter() {
                     handles.push(selector.recv(rx));
+                }
+            }
+
+            // Collect the stderr as events from pipe
+            if let Some(pipe_rx) = &pipe_rx {
+                if let Ok(record) = pipe_rx.try_recv() {
+                    new_events.push((
+                        record.event_type,
+                        Local::now(),
+                        record.message
+                    ));
                 }
             }
 
