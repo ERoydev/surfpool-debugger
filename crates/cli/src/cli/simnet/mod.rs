@@ -239,7 +239,7 @@ async fn start_service(
     breaker: Option<Keypair>,
     sanitized_config: SanitizedConfig,
     explorer_handle: Option<ServerHandle>,
-    _ctx: Context,
+    ctx: Context,
     runloop_terminator: Option<Arc<AtomicBool>>,
 ) -> Result<(), String> {
     let displayed_url = if cmd.no_studio {
@@ -267,6 +267,7 @@ async fn start_service(
             deploy_progress_rx,
             displayed_url,
             breaker,
+            ctx
         )
         .map_err(|e| format!("{}", e))?;
     }

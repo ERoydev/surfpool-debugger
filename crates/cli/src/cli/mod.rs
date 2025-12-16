@@ -31,6 +31,7 @@ pub struct Context {
     pub logger: Option<Logger>,
     #[allow(dead_code)]
     pub tracer: bool,
+    pub pipe_read_stderr: Option<i32>,
 }
 
 pub const DEFAULT_RPC_URL: &str = "https://api.mainnet-beta.solana.com";
@@ -88,6 +89,7 @@ impl Context {
         Context {
             logger: None,
             tracer: false,
+            pipe_read_stderr: None,
         }
     }
 
@@ -535,11 +537,26 @@ impl ExecuteRunbook {
 }
 
 pub fn main() {
+    // Pipe the fd 2 
+    let mut pipefd = [0; 2];
+    unsafe {
+        // pipe system call creates data channel and returns 0 read, 1 write end of pipe
+        if libc::pipe(pipefd.as_mut_ptr()) == -1 {
+            eprintln!("pipe failed: {}", std::io::Error::last_os_error());
+        } else {
+            if libc::dup2(pipefd[1], libc::STDERR_FILENO) == -1 {
+                eprintln!("dup2 failed: {}", std::io::Error::last_os_error());
+            }
+            libc::close(pipefd[1]); // close the write
+        }
+    }
+
     let logger = hiro_system_kit::log::setup_logger();
     let _guard = hiro_system_kit::log::setup_global_logger(logger.clone());
     let ctx = Context {
         logger: Some(logger),
         tracer: false,
+        pipe_read_stderr: Some(pipefd[0])
     };
 
     let opts: Opts = match Opts::try_parse() {
