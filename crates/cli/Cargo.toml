@@ -10,7 +10,7 @@ keywords = { workspace = true }
 categories = { workspace = true }
 
 [[bin]]
-name = "surfpool"
+name = "surfpool_v12_0"
 path = "src/main.rs"
 
 [dependencies]
